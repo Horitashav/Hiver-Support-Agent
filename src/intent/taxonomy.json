@@ -1,0 +1,74 @@
+{
+  "technical_issue": {
+    "description": "Device or software malfunction, bug, crash, freeze, battery drain, or update error",
+    "examples": [
+      "My iPhone keeps restarting randomly every few minutes",
+      "The screen is frozen and won't respond to touch",
+      "Battery draining extremely fast after updating to iOS 17"
+    ],
+    "agent_action": "Troubleshoot with diagnostic steps and device restarts"
+  },
+  "account_access": {
+    "description": "Apple ID, iCloud sign-in problems, password reset, two-factor authentication, or activation lock",
+    "examples": [
+      "I cannot sign into my iCloud account on my Mac",
+      "Forgot my Apple ID password and security questions",
+      "Two-factor verification code is being sent to my old disabled number"
+    ],
+    "agent_action": "Guide customer through official Apple account recovery procedures"
+  },
+  "billing_inquiry": {
+    "description": "Charges, refunds, App Store subscriptions, Apple Pay, or unauthorized transactions",
+    "examples": [
+      "I was charged $9.99 for a subscription I cancelled last week",
+      "How can I request a refund for an accidental App Store purchase?",
+      "There is an unauthorized pending charge from Apple on my bank statement"
+    ],
+    "agent_action": "Explain billing policies or direct to reportaproblem.apple.com"
+  },
+  "how_to": {
+    "description": "Feature configuration, setup instructions, settings, and usage guidance",
+    "examples": [
+      "How do I transfer photos from my iPhone to my Windows PC?",
+      "Where is the toggle to turn on dark mode?",
+      "How do I set up Face ID on my new iPad?"
+    ],
+    "agent_action": "Provide clear, numbered step-by-step instructions"
+  },
+  "hardware_repair": {
+    "description": "Physical damage, screen crack, water damage, hardware replacement, AppleCare claims, or Genius Bar bookings",
+    "examples": [
+      "Dropped my phone and the screen is completely cracked",
+      "My speaker sounds distorted and crackly after getting wet",
+      "How do I book an appointment at the Genius Bar to replace my battery?"
+    ],
+    "agent_action": "Provide repair options and direct to support.apple.com/repair"
+  },
+  "product_compatibility": {
+    "description": "Inquiries regarding device compatibility, accessory support, or product specifications",
+    "examples": [
+      "Does the 1st gen Apple Pencil work with the 10th gen iPad?",
+      "Will this USB-C charger fast charge my iPhone 15?",
+      "Is my older MacBook Air compatible with macOS Sonoma?"
+    ],
+    "agent_action": "Verify hardware/software specs and provide official compatibility details"
+  },
+  "service_complaint": {
+    "description": "Customer frustration regarding poor service, long wait times, or bad repair experiences",
+    "examples": [
+      "I have been waiting 4 days for someone to reply to my ticket",
+      "Your store technician was rude and refused to honor my AppleCare",
+      "This is unacceptable customer service from a trillion dollar company"
+    ],
+    "agent_action": "Acknowledge frustration, apologize sincerely, and escalate for manual handling"
+  },
+  "other": {
+    "description": "General greetings, praise, spam, or ambiguous inquiries outside standard support scope",
+    "examples": [
+      "Thanks for the help, everything works now!",
+      "Apple makes great products",
+      "Can I ask a question here?"
+    ],
+    "agent_action": "Politely acknowledge, close the loop, or ask for clarification"
+  }
+}

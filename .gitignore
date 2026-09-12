@@ -1,0 +1,10 @@
+venv/
+data/raw/
+.env
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+eval/results/
+*.pkl
+*.npy
+models/embedding_index/faiss.index
