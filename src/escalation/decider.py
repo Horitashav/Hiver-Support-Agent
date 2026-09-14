@@ -48,7 +48,7 @@ class EscalationDecider:
 
         # Check 2: High-risk legal / safety keywords
         msg_lower = message.lower()
-        found_kw = [kw for kw in self.ESCALATION_KEYWORDS if kw in msg_lower]
+        found_kw = [kw for kw in self.ESCALATION_KEYWORDS if re.search(r'\b' + re.escape(kw) + r'\b', msg_lower)]
         if found_kw:
             reasons.append(f"Critical keyword match: {', '.join(found_kw)}")
 
