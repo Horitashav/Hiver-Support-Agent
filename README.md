@@ -1,188 +1,170 @@
 # AppleSupport AI Support Agent
 
-A production-style customer support assistant built for handling Apple-support-style conversations with intent classification, retrieval-augmented response generation, and escalation safeguards. The project demonstrates how an AI agent can triage customer messages, retrieve relevant historical cases, draft a grounded response, and decide when a case should be escalated to a human specialist.
+A demo support copilot for AppleSupport-style conversations. It combines LLM intent classification, FAISS retrieval over historical support examples, grounded reply generation, and escalation safeguards behind a FastAPI service and a Next.js triage dashboard.
 
-## Overview
+## How it works
 
-This project is designed for a support workflow where incoming messages may be routine requests, technical failures, account issues, or high-risk situations requiring human intervention. Instead of sending every message to a generic language model, the system applies a structured pipeline:
+Each customer message passes through one pipeline:
 
-1. Detect the customer intent
-2. Retrieve similar past support examples
-3. Generate a customer-safe response grounded in retrieved evidence
-4. Decide whether the issue should be auto-handled or escalated
+1. `LLMClassifier` assigns one intent from `src/intent/taxonomy.json` using Groq.
+2. `ReplyGenerator` retrieves similar examples from `models/embedding_index` and asks Groq for a grounded draft.
+3. `EscalationDecider` applies confidence, safety/legal keyword, frustration, thread-length, and optional LLM checks.
+4. Escalated cases suppress the draft from the customer-facing reply and are shown for human review.
 
-The result is a hybrid AI support system that blends retrieval, language understanding, and operational guardrails.
+The dashboard supports free-form messages, preset scenarios, a triage queue, retrieved-example inspection, and approve/edit/route-to-human override logging.
 
-## What this project does
+## Stack
 
-The application is a support agent for AppleSupport-like conversations. It is meant to simulate a real-world helpdesk workflow in which the assistant:
+- Backend: Python 3.10+, FastAPI, Uvicorn, Pydantic
+- AI: Groq API with `openai/gpt-oss-20b`
+- Retrieval: Sentence Transformers embeddings and FAISS CPU index
+- Data and evaluation: pandas, NumPy, scikit-learn, custom metrics, LLM judge
+- Frontend: Next.js 16, React 19, TypeScript, Tailwind CSS, Framer Motion, Lucide
+- Deployment: Docker Compose with separate backend and frontend containers
 
-- Classifies incoming customer messages into intents such as account access, device issues, how-to questions, safety concerns, and urgent escalation cases
-- Uses a vector search index to find similar historical support threads or examples
-- Generates a response using retrieved evidence instead of relying only on raw model memory
-- Detects high-risk or escalation-worthy scenarios such as legal threats, safety hazards, abusive language, or urgent operational risk
-- Provides a dashboard interface for testing and evaluating the system end-to-end
-
-## Key features
-
-- Intent classification pipeline with taxonomy-based categorization
-- Retrieval-augmented generation (RAG) using FAISS vector search
-- Semantic retrieval of relevant historical examples
-- Escalation decision logic to prevent unsafe or inappropriate auto-replies
-- Interactive Streamlit demo app for live testing
-- Evaluation harness for checking system behavior on labeled examples
-- Support for preset customer scenarios for quick testing
-- Human-review flow for escalated cases
-
-## Architecture
-
-The project follows a modular agent pipeline:
-
-- Intent layer: classifies the user message into a support category
-- Reply layer: retrieves matching historical cases and produces an answer
-- Escalation layer: decides whether the message needs human review or can be safely auto-handled
-- App layer: exposes the workflow through a user-friendly dashboard
-
-This design separates retrieval, classification, and decision-making so each component can be evaluated and improved independently.
-
-## Folder structure
+## Repository layout
 
 ```text
 hiver support agent/
-├── app.py                          # Streamlit interface for the support agent
-├── requirements.txt                # Project dependencies
-├── README.md                       # Project documentation
-├── decision_log.md                 # Decision logs and notes
-├── EVALUATION_REPORT.md            # Evaluation summary/report
-├── data/
-│   ├── golden_eval/
-│   │   └── golden_set.json         # Evaluation dataset
-│   ├── processed/
-│   │   ├── AppleSupport_all_tweets.csv
-│   │   ├── AppleSupport_pairs.csv
-│   │   └── AppleSupport/
-│   │       ├── train.json
-│   │       ├── train_labelled.json
-│   │       ├── val.json
-│   │       ├── test.json
-│   │       └── threads.json
-│   └── raw/
-│       └── twcs.csv
-├── eval/
-│   ├── harness.py                  # Evaluation runner
-│   ├── llm_judge.py               # Scoring/judging code
-│   ├── metrics.py                 # Evaluation metrics
-│   └── results/
-│       └── evaluation_results.json
-├── models/
-│   └── embedding_index/
-│       ├── examples.json
-│       └── faiss.index
-├── notebooks/
-│   ├── 01_eda.ipynb
-│   └── 02_intent_design.ipynb
-├── report/
-├── src/
-│   ├── agent.py                   # Main orchestration pipeline
-│   ├── build_golden_set.py        # Golden dataset builder
-│   ├── data_prep/
-│   │   ├── __init__.py
-│   │   ├── cleaner.py
-│   │   ├── prepare.py
-│   │   └── thread_builder.py
-│   ├── escalation/
-│   │   └── decider.py
-│   ├── intent/
-│   │   ├── baseline_random.py
-│   │   ├── baseline_tfidf.py
-│   │   ├── classifier.py
-│   │   ├── labeler.py
-│   │   └── taxonomy.json
-│   └── reply/
-│       ├── baselines.py
-│       ├── embedder.py
-│       └── generator.py
-└── .gitignore
+api.py                         FastAPI application and REST endpoints
+src/agent.py                   End-to-end SupportAgent orchestration
+src/intent/                    Taxonomy, LLM classifier, and baselines
+src/reply/                     Embeddings, FAISS retrieval, generation, baselines
+src/escalation/                Hybrid escalation rules and baselines
+data/golden_eval/              Golden evaluation set
+data/processed/                Prepared AppleSupport conversation data
+models/embedding_index/        FAISS index and retrieved-example metadata
+eval/                          Evaluation harness, metrics, and LLM judge
+frontend/                      Next.js triage dashboard
+Dockerfile.backend             Backend image
+docker-compose.yml             Full-stack local deployment
 ```
 
-## Tech stack
+## Prerequisites
 
-This project uses a modern Python ML and AI stack:
+- Python 3.10 or newer
+- Node.js 20 or newer and npm
+- A Groq API key
+- The embedding files `models/embedding_index/faiss.index` and `examples.json`
 
-- Python 3
-- Streamlit for the interactive dashboard
-- FAISS for vector similarity search
-- Sentence-transformers for embeddings
-- scikit-learn for ML utilities and evaluation support
-- Pandas and NumPy for data processing
-- OpenAI-compatible LLM usage for classification and response generation
-- PyTorch and Transformers ecosystem for model support
-- Jupyter notebooks for exploration and experimentation
+The embedding index is local/generated data and is ignored by Git. Make sure it exists before starting the backend. The raw dataset under `data/raw` is also ignored; the processed data and golden set included in the repository are enough to run the documented application and evaluation paths.
 
-## Data and evaluation
+## Local setup
 
-The project includes support conversation datasets and evaluation infrastructure for checking quality and safety. It is designed around structured support interaction data, including labeled examples and golden evaluation sets.
+### 1. Backend
 
-The evaluation flow can help assess:
+From the repository root, create and activate a virtual environment:
 
-- Intent classification accuracy
-- Reply relevance and helpfulness
-- Whether dangerous or escalated cases are correctly routed
-- Overall support-agent reliability
-
-## Setup
-
-1. Clone the repository.
-2. Create a virtual environment.
-3. Install dependencies:
-
-```bash
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 ```
 
-4. Run the Streamlit app:
+Create a root `.env` file:
 
-```bash
-streamlit run app.py
+```dotenv
+GROQ_API_KEY=your_groq_api_key
 ```
 
-## Running the app
+Start the API:
 
-Once the dependencies are installed, launch the dashboard from the root directory:
-
-```bash
-streamlit run app.py
+```powershell
+uvicorn api:app --reload --host 0.0.0.0 --port 8000
 ```
 
-The app provides a panel for entering customer messages and running the full support pipeline. It also includes preset scenarios for testing common support cases, from routine how-to questions to serious risk escalations.
+The API is available at `http://localhost:8000`. Interactive OpenAPI documentation is at `http://localhost:8000/docs`.
 
-## Practical use case
+### 2. Frontend
 
-This project is useful for learning and prototyping AI-powered support workflows. It demonstrates how an organization can combine:
+In a second terminal:
 
-- intent analysis
-- similarity matching over historical cases
-- grounded response generation
-- realistic escalation controls
+```powershell
+cd frontend
+npm ci
+```
 
-This makes it a strong example of an "AI support copilot" that is more controlled and operationally safer than a fully freeform chatbot.
+Create `frontend/.env.local` if the API is not running at the default address:
 
-## Notes
+```dotenv
+NEXT_PUBLIC_API_URL=http://localhost:8000
+```
 
-- The system is designed to balance automation with human oversight.
-- Escalation logic is intentional: not every issue should be auto-resolved.
-- The repository is suitable for experimentation, research, and extension to production-grade support workflows.
+Start the dashboard:
 
-## Future improvements
+```powershell
+npm run dev
+```
 
-Possible next steps include:
+Open `http://localhost:3000` and confirm the status bar reports a healthy backend. The frontend expects the backend to allow requests from `localhost:3000` or `127.0.0.1:3000`.
 
-- adding a stronger feedback loop and human-in-the-loop review dashboard
-- integrating with real CRM or ticketing systems
-- improving model evaluation and guardrail logic
-- expanding taxonomy and retrieval coverage
-- adding logging, analytics, and monitoring for production deployment
+## Docker Compose
 
-## Summary
+With `GROQ_API_KEY` in the root `.env`, start both services with:
 
-This project brings together modern AI tooling to create a support assistant that is practical, explainable, and safer for real-world use. It showcases a realistic pipeline for support triage, retrieval-based response generation, and compliance-aware escalation handling.
+```powershell
+docker compose up --build
+```
+
+Then open `http://localhost:3000`. The backend listens on port `8000` and the frontend on port `3000`.
+
+The Docker backend build excludes `models/embedding_index/*.index` through `.dockerignore`. Therefore, a production-ready image still needs an explicit index-volume or artifact step; otherwise the agent may start in a degraded state when the FAISS index is unavailable.
+
+## API summary
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `GET` | `/api/health` | Report backend and agent load status |
+| `GET` | `/api/presets` | Return demo scenarios |
+| `POST` | `/api/process` | Classify, retrieve, draft, and decide escalation |
+| `POST` | `/api/override` | Log an approve, edit, or human-routing action |
+
+Example request:
+
+```json
+{
+  "message": "My iPhone battery is swelling. What should I do?",
+  "conversation_history": [],
+  "ticket_id": null
+}
+```
+
+`/api/process` returns a ticket ID, intent and confidence, generated/released reply, retrieved examples, escalation reasons, auto-handled status, and processing latency.
+
+## Evaluation
+
+Run the full benchmark from the repository root:
+
+```powershell
+python -m eval.harness
+```
+
+The harness reads `data/golden_eval/golden_set.json`, compares the main agent with random, TF-IDF, nearest-neighbor, keyword, and always-escalate baselines, and writes `eval/results/evaluation_results.json`. It reports intent accuracy and F1, BLEU-1-style word overlap, escalation precision/recall/F1, and an LLM-judge sample over 30 items. The LLM judge also requires `GROQ_API_KEY`.
+
+For a lightweight syntax check:
+
+```powershell
+python -m compileall -q api.py src eval
+```
+
+For the frontend:
+
+```powershell
+cd frontend
+npm run lint
+npm run build
+```
+
+## Important limitations
+
+- This is a local demo, not a production ticketing system. Tickets and override logs are held in process memory and disappear when the API restarts.
+- Groq is required for classification, generation, and the nuanced escalation check. Model/API failures fall back to conservative local responses in some components, but should still be monitored.
+- The system uses historical AppleSupport-style data from 2017; generated guidance should be reviewed before real customer use.
+- The evaluation harness makes live LLM calls and can incur provider latency or cost.
+- The current CORS policy only allows the two local frontend origins.
+
+## Supporting documents
+
+- [EVALUATION_REPORT.md](EVALUATION_REPORT.md) contains the recorded evaluation summary.
+- [decision_log.md](decision_log.md) records project decisions and trade-offs.
+- [frontend/README.md](frontend/README.md) contains the generated Next.js starter notes.
