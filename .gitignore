@@ -8,3 +8,15 @@ eval/results/
 *.pkl
 *.npy
 models/embedding_index/faiss.index
+# Frontend
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/.env.local
+
+# Python / Models / Caches
+__pycache__/
+*.pyc
+.env
+data/raw/
+models/embedding_index/*.index
